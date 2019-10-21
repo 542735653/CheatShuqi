@@ -56,6 +56,15 @@ namespace Shuqi
                 StreamWriter w = new StreamWriter(book.bookName + ".txt", false, Encoding.UTF8);
                 foreach (var item in book.chapterList)
                 {
+                    string result = System.Text.RegularExpressions.Regex.Replace(item.chapterName, @"[^0-9]+", "");
+                    if (result != null && !string.IsNullOrEmpty(result))
+                    {
+                        var replacestr = (item.chapterName.Contains("第") ? "" : "第") + NumberToChinese(Convert.ToInt32(result)) + (item.chapterName.Contains("章") ? "" : "章");
+
+                        item.chapterName = item.chapterName.Replace(result, replacestr);
+                    }
+
+
                     Console.WriteLine("{0} : {1}, chapterId : {2}", item.chapterOrdid.PadLeft(5, ' '), item.chapterName, item.chapterId);
 
                     string content = ReadChapterContent(bookid, item);
@@ -74,6 +83,77 @@ namespace Shuqi
             }
             Console.ReadKey(true);
         }
+
+        /// <summary>
+        /// 数字转中文
+        /// </summary>
+        /// <param name="number">eg: 22</param>
+        /// <returns></returns>
+        public static string NumberToChinese(int number)
+        {
+            string res = string.Empty;
+            string str = number.ToString();
+            string schar = str.Substring(0, 1);
+            switch (schar)
+            {
+                case "1":
+                    res = "一";
+                    break;
+                case "2":
+                    res = "二";
+                    break;
+                case "3":
+                    res = "三";
+                    break;
+                case "4":
+                    res = "四";
+                    break;
+                case "5":
+                    res = "五";
+                    break;
+                case "6":
+                    res = "六";
+                    break;
+                case "7":
+                    res = "七";
+                    break;
+                case "8":
+                    res = "八";
+                    break;
+                case "9":
+                    res = "九";
+                    break;
+                default:
+                    res = "零";
+                    break;
+            }
+            if (str.Length > 1)
+            {
+                switch (str.Length)
+                {
+                    case 2:
+                    case 6:
+                        res += "十";
+                        break;
+                    case 3:
+                    case 7:
+                        res += "百";
+                        break;
+                    case 4:
+                        res += "千";
+                        break;
+                    case 5:
+                        res += "万";
+                        break;
+                    default:
+                        res += "";
+                        break;
+                }
+                res += NumberToChinese(int.Parse(str.Substring(1, str.Length - 1)));
+            }
+            return res;
+        }
+
 
         public static BookInfo ReadBookInfo(string bookid)
         {
